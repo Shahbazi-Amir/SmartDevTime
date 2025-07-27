@@ -179,3 +179,98 @@ print("R²:", round(r2, 2))
 '''MAE: 2103.16
 RMSE: 2882.91
 R²: 0.42'''
+
+
+
+# Step 1: Plot actual vs predicted values
+plt.figure(figsize=(8, 6))
+sns.scatterplot(x=y_test, y=y_pred, color='steelblue', s=70)
+
+# Step 2: Plot ideal line (y = x)
+plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], color='red', linestyle='--', label='Ideal Fit')
+
+# Step 3: Labels and title
+plt.xlabel("Actual Effort")
+plt.ylabel("Predicted Effort")
+plt.title("Actual vs Predicted Effort (Linear Regression)")
+plt.legend()
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+
+
+
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+
+
+# Create and train the model
+tree_model = DecisionTreeRegressor(random_state=42)
+tree_model.fit(X_train, y_train)
+
+# Predict on test set
+y_pred_tree = tree_model.predict(X_test)
+
+
+
+
+# Evaluate the model
+mae_tree = mean_absolute_error(y_test, y_pred_tree)
+rmse_tree = np.sqrt(mean_squared_error(y_test, y_pred_tree))
+r2_tree = r2_score(y_test, y_pred_tree)
+
+print("Decision Tree Results:")
+print(f"MAE: {mae_tree:.2f}")
+print(f"RMSE: {rmse_tree:.2f}")
+print(f"R²: {r2_tree:.2f}")
+
+
+
+'''Decision Tree Results:
+MAE: 2779.00
+RMSE: 3601.57
+R²: 0.09'''
+
+
+plt.figure(figsize=(8, 6))
+sns.scatterplot(x=y_test, y=y_pred_tree, color='darkorange', s=70)
+plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'r--', label='Ideal Fit')
+plt.xlabel("Actual Effort")
+plt.ylabel("Predicted Effort")
+plt.title("Actual vs Predicted Effort (Decision Tree)")
+plt.legend()
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+
+
+
+# Get feature names if X is a DataFrame
+feature_names = X_train.columns if hasattr(X_train, 'columns') else [f'X{i}' for i in range(X_train.shape[1])]
+
+# Get coefficients from the trained linear regression model
+coefficients = lr_model.coef_
+
+
+# Combine into a DataFrame for easier interpretation
+coef_df = pd.DataFrame({
+    'Feature': feature_names,
+    'Coefficient': coefficients
+}).sort_values(by='Coefficient', key=abs, ascending=False)
+
+print(coef_df)
+
+
+
+'''          Feature   Coefficient
+7      PointsAjust  10120.003320
+3     Transactions  -3329.217373
+5  PointsNonAdjust  -3273.369574
+4         Entities  -1527.084661
+2           Length   1283.416587
+8         Language  -1242.888855
+6       Adjustment   -979.422520
+0          TeamExp   -365.885652
+1       ManagerExp    232.266398'''
+
+
