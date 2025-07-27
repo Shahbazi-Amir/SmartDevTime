@@ -115,3 +115,31 @@ Name: Effort, dtype: float64'''
 
 
 
+# Step 1: Remove unhelpful columns
+df_model = df_cleaned.drop(columns=['id', 'Project', 'YearEnd'])
+
+# Step 2: Show the shape and first few rows of the cleaned dataframe
+print("Shape after column removal:", df_model.shape)
+df_model.head()
+
+
+
+
+# Step 1: Separate features (X) and target (y)
+X = df_model.drop(columns=['Effort'])  # Features: all columns except Effort
+y = df_model['Effort']                # Target: the column we want to predict
+
+# Step 2: Split into training and testing sets (80% train, 20% test)
+from sklearn.model_selection import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+# Step 3: Print the shape of each set
+print("Training set shape:", X_train.shape)
+print("Test set shape:", X_test.shape)
+
+
+'''Training set shape: (61, 9)
+Test set shape: (16, 9)'''
