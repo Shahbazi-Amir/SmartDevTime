@@ -274,3 +274,56 @@ print(coef_df)
 1       ManagerExp    232.266398'''
 
 
+important_features = ['PointsAjust', 'Transactions', 'PointsNonAdjust', 'Entities', 'Length', 'Language']
+
+
+X_train_simple = X_train[important_features]
+X_test_simple = X_test[important_features]
+
+
+from sklearn.linear_model import LinearRegression
+
+simple_model = LinearRegression()
+simple_model.fit(X_train_simple, y_train)
+
+
+simple_coefficients = simple_model.coef_
+simple_coef_df = pd.DataFrame({
+    'Feature': important_features,
+    'Coefficient': simple_coefficients
+}).sort_values(by='Coefficient', key=abs, ascending=False)
+
+print(simple_coef_df)
+
+
+
+''' Feature  Coefficient
+5         Language -1481.000536
+4           Length   166.254540
+0      PointsAjust    19.723203
+2  PointsNonAdjust    -5.117410
+1     Transactions    -2.923670
+3         Entities    -2.193740'''
+
+
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+
+y_pred_simple = simple_model.predict(X_test_simple)
+
+mae = mean_absolute_error(y_test, y_pred_simple)
+rmse = np.sqrt(mean_squared_error(y_test, y_pred_simple))
+r2 = r2_score(y_test, y_pred_simple)
+
+print(f"MAE: {mae:.2f}")
+print(f"RMSE: {rmse:.2f}")
+print(f"R²: {r2:.2f}")
+
+
+
+'''MAE: 2024.28
+RMSE: 2831.22
+R²: 0.44'''
+
+
+
+
