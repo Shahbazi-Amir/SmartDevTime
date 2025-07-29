@@ -357,3 +357,328 @@ grid_search.fit(X_train, y_train)
 
 
 
+# Step 1: Import XGBoost Regressor and evaluation metrics
+from xgboost import XGBRegressor
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+
+# Step 2: Initialize the XGBoost regressor with basic parameters
+xgb_model = XGBRegressor(objective='reg:squarederror', random_state=42, n_estimators=100)
+
+# Step 3: Fit the model on training data (scaled or original)
+xgb_model.fit(X_train, y_train)
+
+# Step 4: Predict on the test set
+y_pred_xgb = xgb_model.predict(X_test)
+
+# Step 5: Evaluate the model
+mae_xgb = mean_absolute_error(y_test, y_pred_xgb)
+rmse_xgb = np.sqrt(mean_squared_error(y_test, y_pred_xgb))
+r2_xgb = r2_score(y_test, y_pred_xgb)
+
+print(f"XGBoost MAE: {mae_xgb:.2f}")
+print(f"XGBoost RMSE: {rmse_xgb:.2f}")
+print(f"XGBoost R²: {r2_xgb:.2f}")
+
+
+
+from sklearn.model_selection import GridSearchCV
+from xgboost import XGBRegressor
+
+# Create the XGBoost regressor (with random_state for reproducibility)
+xgb_model = XGBRegressor(random_state=42)
+
+# Define the parameter grid for tuning
+param_grid = {
+    'n_estimators': [50, 100, 200],
+    'max_depth': [2, 3, 5, 7],
+    'learning_rate': [0.01, 0.05, 0.1, 0.2],
+    'subsample': [0.7, 1.0],
+    'colsample_bytree': [0.7, 1.0]
+}
+
+# Set up GridSearchCV with 5-fold cross-validation
+grid_search = GridSearchCV(
+    estimator=xgb_model,
+    param_grid=param_grid,
+    cv=5,
+    scoring='r2',
+    verbose=2,
+    n_jobs=-1
+)
+
+# Run grid search on training data
+grid_search.fit(X_train, y_train)
+
+
+
+
+
+plt.figure(figsize=(8, 6))
+sns.scatterplot(x=y_test, y=y_pred_xgb, color='green', s=70)
+plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'r--', label='Ideal Fit')
+plt.xlabel("Actual Effort")
+plt.ylabel("Predicted Effort")
+plt.title("Actual vs Predicted Effort (XGBoost Regression)")
+plt.legend()
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+
+
+
+
+from sklearn.model_selection import GridSearchCV
+from xgboost import XGBRegressor
+
+# Create the XGBoost regressor (with random_state for reproducibility)
+xgb_model = XGBRegressor(random_state=42)
+
+# Define the parameter grid for tuning
+param_grid = {
+    'n_estimators': [50, 100, 200],
+    'max_depth': [2, 3, 5, 7],
+    'learning_rate': [0.01, 0.05, 0.1, 0.2],
+    'subsample': [0.7, 1.0],
+    'colsample_bytree': [0.7, 1.0]
+}
+
+# Set up GridSearchCV with 5-fold cross-validation
+grid_search = GridSearchCV(
+    estimator=xgb_model,
+    param_grid=param_grid,
+    cv=5,
+    scoring='r2',
+    verbose=2,
+    n_jobs=-1
+)
+
+# Run grid search on training data
+grid_search.fit(X_train, y_train)
+
+
+
+plt.figure(figsize=(8, 6))
+sns.scatterplot(x=y_test, y=y_pred_xgb, color='green', s=70)
+plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'r--', label='Ideal Fit')
+plt.xlabel("Actual Effort")
+plt.ylabel("Predicted Effort")
+plt.title("Actual vs Predicted Effort (XGBoost Regression)")
+plt.legend()
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+
+
+
+
+# Step 1: Show best parameters
+print("Best Parameters Found:")
+print(grid_search.best_params_)
+
+# Step 2: Show best R² score from cross-validation
+print("\nBest R² Score from CV:")
+print(round(grid_search.best_score_, 4))
+
+# Step 3: Extract the best model
+best_xgb_model = grid_search.best_estimator_
+
+
+
+
+# Step 1: Predict on test set using the best model
+y_pred_xgb = best_xgb_model.predict(X_test)
+
+# Step 2: Evaluate performance
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+import numpy as np
+
+mae_xgb = mean_absolute_error(y_test, y_pred_xgb)
+rmse_xgb = np.sqrt(mean_squared_error(y_test, y_pred_xgb))
+r2_xgb = r2_score(y_test, y_pred_xgb)
+
+print(f"MAE: {mae_xgb:.2f}")
+print(f"RMSE: {rmse_xgb:.2f}")
+print(f"R²: {r2_xgb:.2f}")
+
+
+
+
+# Step 1: Remove rows with -1 in TeamExp or ManagerExp (as done earlier)
+df_cleaned = df[(df['TeamExp'] != -1) & (df['ManagerExp'] != -1)]
+
+# Step 2: Drop irrelevant columns
+df_model = df_cleaned.drop(columns=['id', 'Project', 'YearEnd'])
+
+# Step 3: Apply one-hot encoding to the 'Language' column
+df_encoded = pd.get_dummies(df_model, columns=['Language'], drop_first=True)
+
+# Optional: Show first few rows
+df_encoded.head()
+
+
+
+
+# Step 1: Create interaction term
+df_encoded['Team_Manager_Interaction'] = df_encoded['TeamExp'] * df_encoded['ManagerExp']
+
+# Step 2: Show first few rows to verify
+df_encoded[['TeamExp', 'ManagerExp', 'Team_Manager_Interaction']].head()
+
+
+
+
+
+
+df_encoded['Team_Manager_Interaction'] = df_encoded['TeamExp'] * df_encoded['ManagerExp']
+
+
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Step 1: Set figure
+plt.figure(figsize=(8, 6))
+
+# Step 2: Plot scatter with color and size based on Effort
+sns.scatterplot(
+    data=df_encoded,
+    x='TeamExp',
+    y='ManagerExp',
+    size='Effort',
+    hue='Effort',
+    palette='viridis',
+    legend='brief'
+)
+
+# Step 3: Customize
+plt.title('TeamExp vs ManagerExp colored by Effort')
+plt.xlabel('Team Experience')
+plt.ylabel('Manager Experience')
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+
+
+
+
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
+# Step 1: Prepare figure
+fig = plt.figure(figsize=(10, 7))
+ax = fig.add_subplot(111, projection='3d')
+
+# Step 2: Plot 3D scatter
+ax.scatter(
+    df_encoded['TeamExp'],
+    df_encoded['ManagerExp'],
+    df_encoded['Effort'],
+    c=df_encoded['Effort'],
+    cmap='viridis',
+    s=50
+)
+
+# Step 3: Labels and title
+ax.set_xlabel('Team Experience')
+ax.set_ylabel('Manager Experience')
+ax.set_zlabel('Effort')
+ax.set_title('3D View: Effort vs TeamExp × ManagerExp')
+
+plt.tight_layout()
+plt.show()
+
+
+
+
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+
+# Step 1: Separate features and target
+X = df_encoded.drop(columns=['Effort'])
+y = df_encoded['Effort']
+
+# Step 2: Split into train and test sets
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+# Step 3: Train the linear regression model
+lr_model = LinearRegression()
+lr_model.fit(X_train, y_train)
+
+# Step 4: Predict and evaluate
+y_pred = lr_model.predict(X_test)
+
+mae = mean_absolute_error(y_test, y_pred)
+rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+r2 = r2_score(y_test, y_pred)
+
+print(f"MAE: {mae:.2f}")
+print(f"RMSE: {rmse:.2f}")
+print(f"R²: {r2:.2f}")
+
+
+
+
+from sklearn.linear_model import Ridge
+
+# Step 1: Define and train the Ridge model
+ridge_model = Ridge(alpha=1.0)
+ridge_model.fit(X_train, y_train)
+
+# Step 2: Predict on test set
+y_pred_ridge = ridge_model.predict(X_test)
+
+# Step 3: Evaluate
+mae_ridge = mean_absolute_error(y_test, y_pred_ridge)
+rmse_ridge = np.sqrt(mean_squared_error(y_test, y_pred_ridge))
+r2_ridge = r2_score(y_test, y_pred_ridge)
+
+print(f"Ridge MAE: {mae_ridge:.2f}")
+print(f"Ridge RMSE: {rmse_ridge:.2f}")
+print(f"Ridge R²: {r2_ridge:.2f}")
+
+
+
+from sklearn.linear_model import Lasso
+
+# Step 1: Define and train the Lasso model
+lasso_model = Lasso(alpha=1.0)
+lasso_model.fit(X_train, y_train)
+
+# Step 2: Predict on test set
+y_pred_lasso = lasso_model.predict(X_test)
+
+# Step 3: Evaluate
+mae_lasso = mean_absolute_error(y_test, y_pred_lasso)
+rmse_lasso = np.sqrt(mean_squared_error(y_test, y_pred_lasso))
+r2_lasso = r2_score(y_test, y_pred_lasso)
+
+print(f"Lasso MAE: {mae_lasso:.2f}")
+print(f"Lasso RMSE: {rmse_lasso:.2f}")
+print(f"Lasso R²: {r2_lasso:.2f}")
+
+
+
+from sklearn.ensemble import RandomForestRegressor
+
+# Step 1: Create and train the model
+rf_model = RandomForestRegressor(n_estimators=100, random_state=42)
+rf_model.fit(X_train, y_train)
+
+# Step 2: Predict on test set
+y_pred_rf = rf_model.predict(X_test)
+
+# Step 3: Evaluate
+mae_rf = mean_absolute_error(y_test, y_pred_rf)
+rmse_rf = np.sqrt(mean_squared_error(y_test, y_pred_rf))
+r2_rf = r2_score(y_test, y_pred_rf)
+
+print(f"Random Forest MAE: {mae_rf:.2f}")
+print(f"Random Forest RMSE: {rmse_rf:.2f}")
+print(f"Random Forest R²: {r2_rf:.2f}")
+
+
+
+
