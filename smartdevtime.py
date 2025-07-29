@@ -327,3 +327,33 @@ R²: 0.44'''
 
 
 
+from sklearn.model_selection import GridSearchCV
+from xgboost import XGBRegressor
+
+# Create the XGBoost regressor (with random_state for reproducibility)
+xgb_model = XGBRegressor(random_state=42)
+
+# Define the parameter grid for tuning
+param_grid = {
+    'n_estimators': [50, 100, 200],
+    'max_depth': [2, 3, 5, 7],
+    'learning_rate': [0.01, 0.05, 0.1, 0.2],
+    'subsample': [0.7, 1.0],
+    'colsample_bytree': [0.7, 1.0]
+}
+
+# Set up GridSearchCV with 5-fold cross-validation
+grid_search = GridSearchCV(
+    estimator=xgb_model,
+    param_grid=param_grid,
+    cv=5,
+    scoring='r2',
+    verbose=2,
+    n_jobs=-1
+)
+
+# Run grid search on training data
+grid_search.fit(X_train, y_train)
+
+
+
