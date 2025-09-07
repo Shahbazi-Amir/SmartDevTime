@@ -1,99 +1,144 @@
-Title:
-Predict Time to Complete IT Projects using ML
+# SmartDevTime – Predicting Project Effort/Duration
 
-Description:
-We are looking for a Junior to Mid-level Machine Learning Developer to build a predictive model that estimates how long IT projects will take to complete.
-
-You’ll work with a dataset containing information about past projects (type, team size, experience level, complexity, etc.), and your task will be to preprocess the data, build a regression model, evaluate it, and deliver predictions and insights in a clear report.
-
-Expected deliverables:
-
-Cleaned dataset
-
-Jupyter Notebook with well-commented code
-
-Final model (pickle or joblib)
-
-Visualizations showing data relationships and model performance
-
-Final report (Markdown and README)
-
-Tech stack preferred: Python, Scikit-learn, Pandas, Matplotlib/Seaborn
-Bonus if you use advanced models (e.g. XGBoost) or demonstrate good model interpretability (SHAP/LIME).
-
-Time: ~30 hours
-Budget: $200–250
-
-Country: India 🇮🇳
-Language: English (Intermediate)
-
-
-
-
-## This is for small and real dataset fp.csv
-https://www.kaggle.com/datasets/tamannashermin/software-effort-estimation-datasets/data
-
-
-# Effort Prediction in Software Projects using Machine Learning
-
-## 🧩 Problem Statement
-
-The goal of this project is to predict the **development effort** (time/cost) of software projects using basic input features such as team and project characteristics.
+This repository contains three experiments exploring **machine learning models for predicting software project effort and duration**.  
+The goal is to assess feasibility of deployment and identify next steps for building a reliable estimation tool.
 
 ---
 
-## 🗂 Dataset Summary
+## 📂 Projects Overview
 
-* Source: Provided CSV file with 81 rows and 13 columns
-* Cleaned data: 77 valid rows after removing -1 values in experience fields
-* Features include: team/manager experience, code metrics, project language, etc.
-
----
-
-## 🔧 Steps Followed
-
-### 1. Data Inspection & Cleaning
-
-* Used `.info()`, `.describe()`, and `.isnull()` to inspect structure
-* Removed outliers and invalid values (`-1`) in experience columns
-
-### 2. Feature Engineering
-
-* Removed ID, Project, and YearEnd columns
-* One-hot encoding for `Language`
-* Added `TeamExp × ManagerExp` as interaction term
-
-### 3. Model Training & Evaluation
-
-We tested the following models:
-
-| Model                      | MAE      | RMSE     | R²       |
-| -------------------------- | -------- | -------- | -------- |
-| Linear (selected features) | **2024** | **2831** | **0.44** |
-| Linear (full + engineered) | 2230     | 2924     | 0.40     |
-| Lasso Regression           | 2231     | 2925     | 0.40     |
-| Ridge Regression           | 2259     | 2967     | 0.38     |
-| Decision Tree              | 2779     | 3601     | 0.09     |
-| XGBoost                    | 2511     | 3506     | 0.14     |
-| Random Forest              | 2443     | 3325     | 0.23     |
+| Project | Dataset | Size | Notes |
+|---------|---------|------|-------|
+| **Project 1** | Real dataset (Function Point–based) | ~80 rows (after cleaning ~77) | Small, real-world data with team/manager experience and FP metrics. |
+| **Project 2** | Hybrid (80 real + simulated expansion to ~300) | ~300 rows | Combines real observations with synthetic extension for stability. |
+| **Side Project** | GitHub metadata (~37k repos) | ~37,000 rows | Public GitHub stats (stars, forks, PRs, watchers, etc.). Indirect proxy for duration. |
 
 ---
 
-## 📌 Conclusion
+## ⚙️ Methods
 
-* **Simpler Linear Regression** with key features performed best
-* Adding interaction & one-hot encoding did not improve significantly
-* Complex models (XGBoost, RandomForest) underperformed due to small dataset size
+Across projects, the following methods were applied:
+
+- **Feature Engineering**
+  - Log-transform of `Effort` to stabilize variance.
+  - Handling of categorical features (one-hot).
+  - Scaling where necessary.
+
+- **Models Tested**
+  - Linear Regression / Ridge / Lasso / ElasticNet
+  - Decision Trees / Random Forests
+  - XGBoost
+  - Cross-validation strategies (5-Fold, 5x2 CV)
+
+- **Evaluation Metrics**
+  - R² (coefficient of determination)
+  - MAE (Mean Absolute Error)
+  - RMSE (Root Mean Squared Error)
 
 ---
 
-## 🚀 Recommendations for Further Work
+## 📊 Results Summary
 
-* Use more data (100+ samples)
-* Advanced feature combinations (polynomial, temporal grouping)
-* Scale features before Lasso/Ridge
-* Test with ensemble stacking or regularized PCA
+### Project 1 (Real, ~80 rows)
+
+- **Best Model**: Linear Regression  
+- **Metrics**:  
+  - R² ≈ 0.44  
+  - MAE ≈ 2024  
+  - RMSE ≈ 2831  
+
+*Interpretation:*  
+Real data but too small. Some predictive power exists, but uncertainty is high.
 
 ---
 
-> Project developed step-by-step using "Prompt-e-Ghadam" method under guidance of Amir with Matilda (ChatGPT-4)
+### Project 2 (Hybrid, ~300 rows)
+
+- **Best Results** (Random Forest, 5x2 CV on Effort):  
+  - R² ≈ 0.52 ± 0.16  
+  - MAE ≈ 2074 ± 253  
+  - RMSE ≈ 2637 ± 310  
+
+- **Linear / ElasticNet (on Log Effort)**:  
+  - R² ≈ 0.42–0.45  
+  - MAE (back-transformed) ≈ 2160–2170  
+
+*Interpretation:*  
+Slightly better stability with cross-validation and log transform. Synthetic data helps training but carries risk of distribution shift.
+
+---
+
+### Side Project (GitHub, ~37k repos)
+
+- **Linear Regression (5-Fold)**:  
+  - R² ≈ 0.06  
+  - MAE ≈ 450 days  
+  - RMSE ≈ 551 days  
+
+- **XGBoost with cumulative features (stars, forks, PRs, etc.)**:  
+  - R² ≈ 0.993 (suspiciously high due to data leakage)  
+
+*Interpretation:*  
+GitHub metadata is unsuitable for pre-project prediction. Cumulative features leak post-hoc information, inflating results artificially.
+
+---
+
+## ✅ Conclusions
+
+- **Realistic Deployment Today:**  
+  Not yet recommended for external users expecting accurate single-point estimates.  
+  Models can be deployed **internally as an MVP**, with:
+  - Prediction intervals (e.g., P10/P50/P90).
+  - Transparency about high uncertainty.
+
+- **Project 1 & 2:**  
+  Provide baseline performance (R² ≈ 0.4–0.5, MAE ≈ 2000+). Useful for proof-of-concept but not for robust external deployment.
+
+- **Side Project:**  
+  Not directly useful for effort estimation due to leakage and irrelevance of post-start metrics.
+
+---
+
+## 🚀 Next Steps
+
+1. **Collect More Real Data**
+   - Aim for 300–500+ real projects with consistent labels (Effort in person-hours/days).
+   - Ensure all features are *known before project start* (e.g., team experience, estimated size, domain, tech stack).
+
+2. **Refine Feature Set**
+   - Remove post-hoc features (stars, forks, commits, PRs).
+   - Focus on **pre-project descriptors**.
+
+3. **Improve Validation**
+   - Use **time-aware CV** if chronological ordering matters.
+   - Report confidence intervals and calibration.
+
+4. **Prototype Deployment**
+   - Package pipeline with `scikit-learn` (`ColumnTransformer`, `RidgeCV` or `RandomForest`).
+   - Expose via FastAPI endpoint: `/predict` → returns `{p10, p50, p90}` estimates.
+   - Add monitoring (MAE, SMAPE, input drift).
+
+5. **Iterative Retraining**
+   - Continuously log new project data.
+   - Retrain monthly or quarterly as dataset grows.
+
+---
+
+## 📌 Key Takeaways
+
+- Current models capture ~40–50% of variance (moderate).  
+- Predictive uncertainty is large (MAE ~2000 effort units).  
+- **Data quality and size** are the main bottlenecks.  
+- For reliable deployment, **more real, pre-project data** is essential.  
+
+---
+
+## 📝 Acknowledgements
+
+This work was developed in three stages, combining real-world software project datasets, simulated data augmentation, and exploratory GitHub metadata.  
+The experiments provide a foundation for future **data-driven project time estimation systems**.
+
+
+
+
+
